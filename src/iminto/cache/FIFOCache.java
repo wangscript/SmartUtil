@@ -1,0 +1,58 @@
+package iminto.cache;
+import java.util.LinkedHashMap;
+import java.util.Iterator;
+
+/**
+ * FIFO (first in first out) cache.
+ *
+ * <p>
+ * FIFO (first in first out): just adds items to the cache as they are accessed, putting them in a queue or buffer and
+ * not changing their location in the buffer; when the cache is full, items are ejected in the order they were
+ * added. Cache access overhead is constant time regardless of the size of the cache. The advantage of this algorithm
+ * is that it's simple and fast; it can be implemented using a simple array and an index. The disadvantage is that
+ * it's not very smart; it doesn't make any effort to keep more commonly used items in cache.
+ * <p>
+ * Summary for FIFO: fast, not adaptive, not scan resistant.
+ */
+public class FIFOCache<K, V> extends AbstractCacheMap<K, V> {
+
+	public FIFOCache(int cacheSize) {
+		this(cacheSize, 0);
+	}
+
+	/**
+	 * Creates a new LRU cache.
+	 */
+	public FIFOCache(int cacheSize, long timeout) {
+		this.cacheSize = cacheSize;
+		this.timeout = timeout;
+		cacheMap = new LinkedHashMap<K,CacheObject<K,V>>(cacheSize + 1, 1.0f, false);
+	}
+
+	/**
+	 * Prune expired objects and, if cache is still full, the first one.
+	 */
+	@Override
+	protected int pruneCache() {
+        int count = 0;
+		CacheObject<K,V> first = null;
+		Iterator<CacheObject<K,V>> values = cacheMap.values().iterator();
+		while (values.hasNext()) {
+			CacheObject<K,V> co = values.next();
+			if (co.isExpired() == true) {
+				values.remove();
+				count++;
+			}
+			if (first == null) {
+				first = co;
+			}
+		}
+		if (isFull()) {
+			if (first != null) {
+				cacheMap.remove(first.key);
+				count++;
+			}
+		}
+		return count;
+	}
+}
