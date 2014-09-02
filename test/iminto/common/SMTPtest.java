@@ -9,7 +9,7 @@ public class SMTPtest {
 		MailSend.MailMessage msg=new MailMessage();
 		msg.setFrom("lengfeng1601@163.com");
 		msg.setUser("lengfeng1601");
-		msg.setPassWord("hen0990123");
+		msg.setPassWord("123456");
 		msg.setTo("waitfox@qq.com");
 		msg.setSubject("test");
 		msg.setContent("hello it is a test");
